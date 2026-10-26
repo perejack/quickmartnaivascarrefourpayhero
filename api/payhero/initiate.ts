@@ -55,13 +55,17 @@ function normalizePhoneNumber(phone: string | undefined | null): string | null {
 
 const PAYHERO_AUTH_HEADER =
   "Basic Umt6bU9HaFBNWDB3YzQxNzVwcXA6YWJHZllweFZWblplcGVNQTRjQ0FISHBVY2VXQllxRXF4TnpNVnp1Tw==";
-const PAYHERO_CHANNEL_ID = 13712;
+const PAYHERO_CHANNEL_ID = 14277;
 
 function getAuthHeader(): string {
+  const envVal = process.env.PAYHERO_AUTH_HEADER?.trim();
+  if (envVal) return envVal.startsWith("Basic ") ? envVal : `Basic ${envVal}`;
   return PAYHERO_AUTH_HEADER;
 }
 
 function getChannelId(): number {
+  const envVal = Number(process.env.PAYHERO_CHANNEL_ID);
+  if (Number.isFinite(envVal) && envVal > 0) return envVal;
   return PAYHERO_CHANNEL_ID;
 }
 
