@@ -14,15 +14,36 @@ export const Route = createFileRoute("/filament/")({
 });
 
 // Supabase credentials for admin dashboard
-const SUPABASE_URL =
-  (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim() ||
-  "https://mmizjhxxajhooslhyafb.supabase.co";
-const SUPABASE_SERVICE_KEY =
-  (import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY as string | undefined)?.trim() ||
-  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim() ||
+const DEFAULT_SUPABASE_URL = "https://mmizjhxxajhooslhyafb.supabase.co";
+const DEFAULT_SUPABASE_SERVICE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1taXpqaHh4YWpob29zbGh5YWZiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTgzODYxNSwiZXhwIjoyMDk1NDE0NjE1fQ.JwePVNWyfBJOJARhwkf1c0Mg5BVehWLZNl6s6MbbDsw";
 
-const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+function getAdminSupabaseUrl(): string {
+  const envUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim();
+  if (envUrl && /^https?:\/\//i.test(envUrl) && !/placeholder|your_supabase|example/i.test(envUrl)) {
+    try {
+      new URL(envUrl);
+      return envUrl;
+    } catch {
+      // ignore
+    }
+  }
+  return DEFAULT_SUPABASE_URL;
+}
+
+function getAdminSupabaseKey(): string {
+  const serviceKey = (import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY as string | undefined)?.trim();
+  if (serviceKey && serviceKey.length > 20 && !/placeholder|your_/i.test(serviceKey)) {
+    return serviceKey;
+  }
+  const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim();
+  if (anonKey && anonKey.length > 20 && !/placeholder|your_/i.test(anonKey)) {
+    return anonKey;
+  }
+  return DEFAULT_SUPABASE_SERVICE_KEY;
+}
+
+const adminClient = createClient(getAdminSupabaseUrl(), getAdminSupabaseKey(), {
   auth: { persistSession: false },
 });
 

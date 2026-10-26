@@ -7,7 +7,7 @@ const DEFAULT_SUPABASE_ANON_KEY =
 
 function getSafeSupabaseUrl(): string {
   const envUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim();
-  if (envUrl && /^https?:\/\//i.test(envUrl)) {
+  if (envUrl && /^https?:\/\//i.test(envUrl) && !/placeholder|your_supabase|example/i.test(envUrl)) {
     try {
       new URL(envUrl);
       return envUrl;
