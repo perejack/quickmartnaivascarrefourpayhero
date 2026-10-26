@@ -13,10 +13,14 @@ export const Route = createFileRoute("/filament/")({
   component: AdminDashboard,
 });
 
-// Hardcoded Supabase credentials
-const SUPABASE_URL = "https://dyuafiidztsjnwqubqpd.supabase.co";
+// Supabase credentials for admin dashboard
+const SUPABASE_URL =
+  (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim() ||
+  "https://mmizjhxxajhooslhyafb.supabase.co";
 const SUPABASE_SERVICE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5dWFmaWlkenRzam53cXVicXBkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDEyMjY3NywiZXhwIjoyMTA1Njk4Njc3fQ.q5p27DM_2zmbwW2X4M4ONTEL3V8x8IZovOhashyyums";
+  (import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY as string | undefined)?.trim() ||
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim() ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1taXpqaHh4YWpob29zbGh5YWZiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTgzODYxNSwiZXhwIjoyMDk1NDE0NjE1fQ.JwePVNWyfBJOJARhwkf1c0Mg5BVehWLZNl6s6MbbDsw";
 
 const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
   auth: { persistSession: false },

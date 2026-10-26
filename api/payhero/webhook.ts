@@ -79,9 +79,9 @@ export default async function handler(req: any, res: any) {
     (typeof json.reference === "string" ? json.reference : null);
 
   // Hardcoded fallback for Supabase
-  const DEFAULT_SUPABASE_URL = "https://dyuafiidztsjnwqubqpd.supabase.co";
+  const DEFAULT_SUPABASE_URL = "https://mmizjhxxajhooslhyafb.supabase.co";
   const DEFAULT_SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5dWFmaWlkenRzam53cXVicXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxMjI2NzcsImV4cCI6MjEwNTY5ODY3N30.x-MaM4xj1On3b2fWAmiRuiSPKo9p6IfjEs9YYFU1uGY";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1taXpqaHh4YWpob29zbGh5YWZiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTgzODYxNSwiZXhwIjoyMDk1NDE0NjE1fQ.JwePVNWyfBJOJARhwkf1c0Mg5BVehWLZNl6s6MbbDsw";
 
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
   const supabaseKey =
