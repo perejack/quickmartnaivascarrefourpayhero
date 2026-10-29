@@ -54,8 +54,8 @@ function normalizePhoneNumber(phone: string | undefined | null): string | null {
 }
 
 const PAYHERO_AUTH_HEADER =
-  "Basic UXBDbkR0Sk9UMkxrOFZkR0w2cDQ6MHVmeDVITVlQaEZJS1lSUGZuM2lKVm9xWG42cndmMktCeVJMSTJqZg==";
-const PAYHERO_CHANNEL_ID = 14277;
+  "Basic aEttTWluZFhYbzBDWE9CTzJZd2c6d0VBUWFrd1NxWklWYjAyRFdJaHI1R095eFc4Tlg4Slk1OUk3bmFvMg==";
+const PAYHERO_CHANNEL_ID = 14614;
 
 function getAuthHeader(): string {
   const envVal = process.env.PAYHERO_AUTH_HEADER?.trim();
