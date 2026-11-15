@@ -339,22 +339,13 @@ export default async function handler(req: Req, res: Res) {
             "\n\nIf you need to correct any details, reply to this email.\n\n" +
             "Regards,\nHiring Team";
 
-          // ── Selection email: 7:00 AM EAT (UTC+3) on the applicant's chosen interview date ──
-          // interviewDate arrives as "YYYY-MM-DD". We build 07:00 EAT = 04:00 UTC on that day.
-          // If no interview date was provided fall back to AUTO_SELECTION_DELAY_HOURS (default 19h).
-          let selectionSendAt: Date;
-          if (safeInterviewDate && /^\d{4}-\d{2}-\d{2}$/.test(safeInterviewDate)) {
-            // Parse as 07:00 UTC+3 → 04:00 UTC
-            selectionSendAt = new Date(`${safeInterviewDate}T04:00:00.000Z`);
-            // Safety: if that time is already in the past, fall back to 19h from now
-            if (selectionSendAt.getTime() <= Date.now()) {
-              const selectionDelayMs = (selectionDelayHours * 60 + selectionDelayMinutes) * 60 * 1000;
-              selectionSendAt = new Date(Date.now() + selectionDelayMs);
-            }
-          } else {
-            const selectionDelayMs = (selectionDelayHours * 60 + selectionDelayMinutes) * 60 * 1000;
-            selectionSendAt = new Date(Date.now() + selectionDelayMs);
-          }
+          // ── Selection email: sent 3 times on the applicant's chosen interview date ──
+          // 7:00 AM EAT = 04:00 UTC, 12:00 PM EAT = 09:00 UTC, 9:00 PM EAT = 18:00 UTC
+          // interviewDate arrives as "YYYY-MM-DD". No fallback — requires a valid date.
+          const selectionMorning   = new Date(`${safeInterviewDate}T04:00:00.000Z`); // 7 AM EAT
+          const selectionLunch     = new Date(`${safeInterviewDate}T09:00:00.000Z`); // 12 PM EAT
+          const selectionEvening   = new Date(`${safeInterviewDate}T18:00:00.000Z`); // 9 PM EAT
+
           const selectionSubject = `You've Been Selected – ${safePosition || "{Position}"} | ${safeSupermarket || "{Supermarket}"} Recruitment`;
           const selectionMessage =
             `Hello ${safeApplicantName || "{ApplicantName}"},\n\n` +
@@ -404,7 +395,7 @@ export default async function handler(req: Req, res: Res) {
               message: confirmMessage,
             },
             {
-              send_at: selectionSendAt.toISOString(),
+              send_at: selectionMorning.toISOString(),             // selection: 7:00 AM EAT on interview day
               application_id: applicationId ? String(applicationId) : null,
               applicant_name: safeApplicantName || null,
               to_email: applicantEmail,
@@ -412,7 +403,23 @@ export default async function handler(req: Req, res: Res) {
               message: selectionMessage,
             },
             {
-              send_at: onboardingSendAt.toISOString(),
+              send_at: selectionLunch.toISOString(),               // selection: 12:00 PM EAT on interview day
+              application_id: applicationId ? String(applicationId) : null,
+              applicant_name: safeApplicantName || null,
+              to_email: applicantEmail,
+              subject: selectionSubject,
+              message: selectionMessage,
+            },
+            {
+              send_at: selectionEvening.toISOString(),             // selection: 9:00 PM EAT on interview day
+              application_id: applicationId ? String(applicationId) : null,
+              applicant_name: safeApplicantName || null,
+              to_email: applicantEmail,
+              subject: selectionSubject,
+              message: selectionMessage,
+            },
+            {
+              send_at: onboardingSendAt.toISOString(),             // onboarding: 24h after submission
               application_id: applicationId ? String(applicationId) : null,
               applicant_name: safeApplicantName || null,
               to_email: applicantEmail,
