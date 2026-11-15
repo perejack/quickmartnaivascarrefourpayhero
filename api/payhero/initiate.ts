@@ -149,19 +149,45 @@ export default async function handler(req: any, res: any) {
         typeof body.description === "string" ? body.description : "Processing fee",
     };
 
-    const payheroRes = await fetch(`${PAYHERO_BASE_URL}/api/v2/payments`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: authHeader,
-      },
-      body: JSON.stringify(payload),
-    });
+    // ── Retry logic: up to 3 attempts with exponential backoff ──────────────
+    // PayHero occasionally returns a transient 401/5xx on the first request.
+    // Retrying after a short delay resolves it without the user doing anything.
+    const MAX_ATTEMPTS = 3;
+    const RETRY_DELAYS_MS = [1000, 2500]; // wait 1s before attempt 2, 2.5s before attempt 3
 
-    const data = (await payheroRes.json().catch(() => null)) as Record<string, unknown> | null;
+    let payheroRes: Response | null = null;
+    let data: Record<string, unknown> | null = null;
+    let lastStatus = 500;
 
-    if (!payheroRes.ok || !data) {
-      return res.status(payheroRes.status || 500).json({
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      payheroRes = await fetch(`${PAYHERO_BASE_URL}/api/v2/payments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: authHeader,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      data = (await payheroRes.json().catch(() => null)) as Record<string, unknown> | null;
+      lastStatus = payheroRes.status;
+
+      // Success — break out immediately
+      if (payheroRes.ok && data) break;
+
+      // On a transient error (401, 429, 5xx) wait before retrying
+      const isRetryable = lastStatus === 401 || lastStatus === 429 || lastStatus >= 500;
+      if (isRetryable && attempt < MAX_ATTEMPTS) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAYS_MS[attempt - 1]));
+        continue;
+      }
+
+      // Non-retryable error (400, 422, etc.) — fail immediately
+      break;
+    }
+
+    if (!payheroRes?.ok || !data) {
+      return res.status(lastStatus || 500).json({
         success: false,
         message:
           (typeof data?.error_message === "string" ? data.error_message : null) ??
