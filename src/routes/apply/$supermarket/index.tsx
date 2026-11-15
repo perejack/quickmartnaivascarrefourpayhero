@@ -30,6 +30,8 @@ import posWarehouse from "@/assets/pos-warehouse.jpg";
 import posGuard from "@/assets/pos-guard.jpg";
 import mpesaLogo from "@/assets/mpesa-logo.png";
 
+const POS_PACKING_URL = "https://www.dhl.com/discover/content/dam/kenya/logistics-guide/essential-guide/Ventilation%20Can%20Reduce%20Strength.jpg";
+
 export const Route = createFileRoute("/apply/$supermarket/")({
   component: ApplyPage,
 });
@@ -45,11 +47,12 @@ const positionImages: Record<string, string> = {
   "Chef": posChef,
   "Warehouse Supervisor": posWarehouse,
   "Guards": posGuard,
+  "Packing Attendant": POS_PACKING_URL,
 };
 
 const positions = [
   "Cleaners", "Cashiers", "Store Keepers", "Drivers", "Loaders & Off-loaders",
-  "Marketer", "Sales Attendant", "Chef", "Warehouse Supervisor", "Guards",
+  "Marketer", "Sales Attendant", "Chef", "Warehouse Supervisor", "Guards", "Packing Attendant",
 ];
 
 const jobData: Record<string, { category: string; salary: string; benefit: string; benefitAmount: string }> = {
@@ -63,6 +66,7 @@ const jobData: Record<string, { category: string; salary: string; benefit: strin
   "Chef": { category: "Kitchen", salary: "50,000", benefit: "Meal Allowance", benefitAmount: "4,000" },
   "Warehouse Supervisor": { category: "Management", salary: "55,000", benefit: "Leadership Bonus", benefitAmount: "8,000" },
   "Guards": { category: "Security", salary: "32,000", benefit: "Night Allowance", benefitAmount: "3,500" },
+  "Packing Attendant": { category: "Packaging", salary: "27,000", benefit: "Transport Allowance", benefitAmount: "3,000" },
 };
 
 const workTypes = ["Full Time", "Part Time"];
