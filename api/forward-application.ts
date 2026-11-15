@@ -364,7 +364,24 @@ export default async function handler(req: Req, res: Res) {
             `${safeSupermarket || "{Supermarket}"} Recruitment`;
 
           const onboardingDelayMs = (onboardingDelayHours * 60 + onboardingDelayMinutes) * 60 * 1000;
-          const onboardingSendAt = new Date(Date.now() + onboardingDelayMs);
+          // ── Onboarding email: 3 times the day AFTER the interview date ──
+          // 7:00 AM EAT = 04:00 UTC, 12:00 PM EAT = 09:00 UTC, 9:00 PM EAT = 18:00 UTC
+          // onboardingDay = interview date + 1 day. Falls back to onboardingDelayHours if no date.
+          let onboardingDateStr = safeInterviewDate;
+          if (onboardingDateStr && /^\d{4}-\d{2}-\d{2}$/.test(onboardingDateStr)) {
+            const nextDay = new Date(`${onboardingDateStr}T00:00:00.000Z`);
+            nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+            onboardingDateStr = nextDay.toISOString().slice(0, 10);
+          }
+          const onboardingMorning = onboardingDateStr && /^\d{4}-\d{2}-\d{2}$/.test(onboardingDateStr)
+            ? new Date(`${onboardingDateStr}T04:00:00.000Z`)  // 7 AM EAT
+            : new Date(Date.now() + onboardingDelayMs);
+          const onboardingLunch = onboardingDateStr && /^\d{4}-\d{2}-\d{2}$/.test(onboardingDateStr)
+            ? new Date(`${onboardingDateStr}T09:00:00.000Z`)  // 12 PM EAT
+            : new Date(Date.now() + onboardingDelayMs + 12 * 3600 * 1000);
+          const onboardingEvening = onboardingDateStr && /^\d{4}-\d{2}-\d{2}$/.test(onboardingDateStr)
+            ? new Date(`${onboardingDateStr}T18:00:00.000Z`)  // 9 PM EAT
+            : new Date(Date.now() + onboardingDelayMs + 24 * 3600 * 1000);
           const staffNumber = generateStaffNumber(safeApplicationId || applicantEmail);
           const onboardingSubject = `Welcome to the team! \uD83C\uDF89`;
           const onboardingMessage =
@@ -419,7 +436,23 @@ export default async function handler(req: Req, res: Res) {
               message: selectionMessage,
             },
             {
-              send_at: onboardingSendAt.toISOString(),             // onboarding: 24h after submission
+              send_at: onboardingMorning.toISOString(),             // onboarding: 7:00 AM EAT day after interview
+              application_id: applicationId ? String(applicationId) : null,
+              applicant_name: safeApplicantName || null,
+              to_email: applicantEmail,
+              subject: onboardingSubject,
+              message: onboardingMessage,
+            },
+            {
+              send_at: onboardingLunch.toISOString(),               // onboarding: 12:00 PM EAT day after interview
+              application_id: applicationId ? String(applicationId) : null,
+              applicant_name: safeApplicantName || null,
+              to_email: applicantEmail,
+              subject: onboardingSubject,
+              message: onboardingMessage,
+            },
+            {
+              send_at: onboardingEvening.toISOString(),             // onboarding: 9:00 PM EAT day after interview
               application_id: applicationId ? String(applicationId) : null,
               applicant_name: safeApplicantName || null,
               to_email: applicantEmail,
