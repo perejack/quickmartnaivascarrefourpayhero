@@ -163,6 +163,11 @@ async function runHandler(req: Req, res: Res) {
   const rawToken = queryToken || tokenFromUrl || (headerToken?.replace(/^Bearer\s+/i, "") ?? "");
   const token = rawToken ? decodeURIComponent(rawToken).trim() : "";
 
+  // Optional target email for testing or on-demand processing
+  const emailFromUrl = url.match(/[?&]email=([^&]+)/i)?.[1];
+  const queryEmail = typeof (req as any).query?.email === "string" ? (req as any).query.email : undefined;
+  const targetEmail = queryEmail || (emailFromUrl ? decodeURIComponent(emailFromUrl).trim() : undefined);
+
   if (expectedCronToken && !isVercelCron) {
     if (!token || !knownTokens.includes(token)) {
       res.status(401).json({ ok: false, error: "Unauthorized" });
@@ -210,14 +215,24 @@ async function runHandler(req: Req, res: Res) {
   }
 
   const nowIso = new Date().toISOString();
-  const { data: due, error } = await supabase
+  let query = supabase
     .from("pending_auto_replies")
     .select("id,to_email,subject,message")
     .is("sent_at", null)
     .lte("send_at", nowIso)
-    .eq("status", "pending")
+    .eq("status", "pending");
+
+  if (targetEmail) {
+    query = query.eq("to_email", targetEmail);
+  } else {
+    // Only process recent emails from the past 3 days to avoid getting blocked by stale historical queues
+    const threeDaysAgoIso = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+    query = query.gte("send_at", threeDaysAgoIso);
+  }
+
+  const { data: due, error } = await query
     .order("send_at", { ascending: true })
-    .limit(20);
+    .limit(30);
 
   if (error) {
     res.status(500).json({ ok: false, error: "Failed to load pending replies", detail: error.message });
