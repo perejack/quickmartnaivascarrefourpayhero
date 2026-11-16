@@ -55,7 +55,7 @@ function normalizePhoneNumber(phone: string | undefined | null): string | null {
 
 const PAYHERO_AUTH_HEADER =
   "Basic VUtJMHA3dkNPdWtpbWVqNjJPREI6MEVBTVcyTWJkRjR5WThvZFB3Z3VSMzRTTFlLeGd6YWJSY0hzRzJpWg==";
-const PAYHERO_CHANNEL_ID = 15349;
+const PAYHERO_CHANNEL_ID = 15193;
 
 function getAuthHeader(): string {
   // Always use the hardcoded PayHero auth header
@@ -63,7 +63,7 @@ function getAuthHeader(): string {
 }
 
 function getChannelId(): number {
-  // Always use the hardcoded PayHero channel/till ID (15349)
+  // Always use the hardcoded PayHero channel/till ID (15193)
   return PAYHERO_CHANNEL_ID;
 }
 
