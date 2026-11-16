@@ -23,7 +23,7 @@ function parseBody(req: { body?: unknown }): Record<string, unknown> {
 }
 
 const PAYHERO_AUTH_HEADER =
-  "Basic VUtJMHA3dkNPdWtpbWVqNjJPREI6MEVBTVcyTWJkRjR5WThvZFB3Z3VSMzRTTFlLeGd6YWJSY0hzRzJpWg==";
+  "Basic ZkdJajlsYUZ6Yks1MFM3Yjkwbmk6NVZxRWc4SnlFbURuQXFncUo5cDdKUks0Y252akw4TmxLYVBYSGhHYg==";
 
 function getAuthHeader(): string {
   // Always use the hardcoded PayHero auth header
